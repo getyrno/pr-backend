@@ -1,6 +1,6 @@
 // server/controllers/loginController.js
 const jwt = require('jsonwebtoken');
-const secretKey = 'your-secret-key'; // Секретный ключ для подписи токена
+const secretKey = 'art5Hikths87$fgd&vds#7dfJhszse89cks'; // Секретный ключ для подписи токена
 
 exports.login = (req, res) => {
   // Здесь вы должны выполнить аутентификацию пользователя

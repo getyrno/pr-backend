@@ -5,7 +5,7 @@ class TokenController {
     const token = req.headers.authorization.split(' ')[1]; // Получаем токен из заголовков запроса
     console.log("token =>", token);
     try {
-      const decodedToken = jwt.verify(token, 'secretKey'); // Расшифровываем токен с использованием секретного ключа
+      const decodedToken = jwt.verify(token, 'art5Hikths87$fgd&vds#7dfJhszse89cks'); // Расшифровываем токен с использованием секретного ключа
       console.log("decodedToken =>", decodedToken);
       const userId = decodedToken.userId; // Получаем идентификатор пользователя из расшифрованного токена
       console.log("userId =>", userId);

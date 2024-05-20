@@ -1,6 +1,6 @@
-// server/middleware/loginMiddleware.js
+// server/middleware/Middleware.js
 const jwt = require('jsonwebtoken');
-const secretKey = 'your-secret-key'; // Секретный ключ для проверки токена
+const secretKey = 'art5Hikths87$fgd&vds#7dfJhszse89cks'; // Секретный ключ для проверки токена
 
 module.exports = (req, res, next) => {
   // Получаем токен из заголовка запроса
@@ -20,7 +20,7 @@ module.exports = (req, res, next) => {
 };
 
 
-// loginMiddleware.js:
+// Middleware.js:
 
 // Этот middleware проверяет наличие и действительность токена в заголовке запроса.
 // Если токен есть и действителен, он декодируется, и идентификатор пользователя добавляется в объект запроса (req.userId).
