@@ -1,6 +1,8 @@
 // server/middleware/Middleware.js
+require('dotenv').config(); // Загрузка переменных окружения из .env
 const jwt = require('jsonwebtoken');
-const secretKey = 'art5Hikths87$fgd&vds#7dfJhszse89cks'; // Секретный ключ для проверки токена
+
+const secretKey = process.env.JWT_SECRET; // Получаем секретный ключ из переменной окружения
 
 module.exports = (req, res, next) => {
   // Получаем токен из заголовка запроса

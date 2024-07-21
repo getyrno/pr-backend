@@ -1,27 +1,29 @@
+require('dotenv').config();
 const SmsService = require('../services/smsService');
 const db = require('../../db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const redisClient = require('../../redisClient');
+const { sendCodeToUser } = require('../telegram-services/verification-bot/engine-bot');
 
 class AuthController {
   constructor() {
-    this.smsService = new SmsService('platon.dev@mail.ru', 'z7qq7xvPRFr0BDpk1HLaHZHZPS');
-    this.verificationCode = '';
+    this.smsService = new SmsService(process.env.SMS_SERVICE_EMAIL, process.env.SMS_SERVICE_PASSWORD);
+    this.verificationCodes = new Map();
   }
 
   generateToken(user) {
-    const token = jwt.sign({ userId: user.id }, 'art5Hikths87$fgd&vds#7dfJhszse89cks', { expiresIn: '7d' }); // Замените 'secretKey' на ваш секретный ключ
-        return token;
+    return jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
   }
 
   sendVerificationCode = async (req, res) => {
     const { phoneNumber } = req.body;
     try {
       console.log(`Received phoneNumber: ${phoneNumber}`);
-      this.verificationCode = this.smsService.generateVerificationCode();
-      console.log(`Generated verification code: ${this.verificationCode}`);
-      await redisClient.set(phoneNumber, this.verificationCode, 'EX', 300); // Сохраняем код в Redis на 5 минут
+      const verificationCode = this.smsService.generateVerificationCode();
+      console.log(`Generated verification code: ${verificationCode}`);
+      await sendCodeToUser(phoneNumber, verificationCode);
+      this.verificationCodes.set(phoneNumber, verificationCode);
+
       res.json({ message: 'Verification code sent successfully' });
     } catch (error) {
       console.error(`Error sending verification code: ${error.message}`);
@@ -33,14 +35,15 @@ class AuthController {
     const { phoneNumber, verifCode } = req.body;
     try {
       console.log(`Received verification request for phoneNumber: ${phoneNumber}, code: ${verifCode}`);
-      const reply = await redisClient.get(phoneNumber);
-      console.log(`Received verification request for phoneNumber 2: ${phoneNumber}, code: ${reply}`);
       const repCode = verifCode.replace(/\D/g, '');
-      console.log("repCode:", repCode);
+      console.log(this.verificationCodes);
+      console.log(this.verificationCodes.get(phoneNumber), repCode);
+      console.log(this.verificationCodes.get(phoneNumber));
 
-      if (repCode === reply) {
+      if (repCode === this.verificationCodes.get(phoneNumber)) {
         const userQuery = await db.query('SELECT * FROM users WHERE phone_number = $1', [phoneNumber]);
         const existingUser = userQuery.rows[0];
+        console.log(userQuery, existingUser);
 
         if (existingUser) {
           if (!existingUser.username || !existingUser.password) {
@@ -97,11 +100,3 @@ class AuthController {
 }
 
 module.exports = new AuthController();
-
-const insertUserQuery = `
-        INSERT INTO users (phone_number, username, email, password)
-        VALUES ($1, $2, $3, $4)
-        ON CONFLICT (phone_number) DO UPDATE
-        SET username = $2, email = $3, password = $4
-        RETURNING *
-      `;

@@ -10,6 +10,7 @@ const messageController = require('../messenger/controllers/messageController');
 
 // Маршрут, защищенный middleware аутентификации
 router.get('/info', middleware, protectedController.getUserInfo);
+router.get('/info/:userId', middleware, protectedController.getInfoAboutPerson);
 router.post('/chats/create', middleware, chatController.createChat);
 router.get('/chats/getUserChats', middleware, chatController.getUserChats);
 router.post('/group_chats/create', middleware, groupChatController.createGroupChat);

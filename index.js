@@ -8,7 +8,7 @@ const { createServer } = require('http');
 const socketIo = require('socket.io');
 const initSockets = require('./socket');
 const db = require('./db');
-const redisClient = require('./redisClient');
+// const redisClient = require('./redisClient');
 
 // Создание приложения Express
 const app = express();
@@ -61,7 +61,7 @@ const io = socketIo(server, {
 });
 
 // Запуск и настройка Socket.IO
-initSockets(io);
+initSockets(io, db);
 
 // Запуск сервера
 const PORT = process.env.PORT || 3000;
